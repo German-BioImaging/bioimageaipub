@@ -16,9 +16,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-BioimageAIpub is supplied as a Python library. See `demo\idr-hf-upload` for a Python notebook demonstrating the usage.
-
-> TODO: Missing python script?
+BioimageAIpub is supplied as a Python library. See `demo\demo.ipynb` for a Python notebook demonstrating the usage.
 
 ## Citation
 
