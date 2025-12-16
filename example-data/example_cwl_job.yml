@@ -1,0 +1,16 @@
+list_path:
+  class: File
+  path: ../example-data/to_download_zarrs.txt
+
+destination_dataset: "stefanches/genomic-bioimaging"
+
+# Optional:
+endpoint_url: "https://uk1s3.embassy.ebi.ac.uk"
+data_dir: "s3://bia-integrator-data/S-BIAD845/"
+file_type: ".zarr"
+
+train_ratio: 0.8
+study_id: "idr0012"
+hf_num_fields: 2
+mixed_data_type_columns: "Original GeneID Target"
+# omexcavator_path: "/opt/omexcavator"
