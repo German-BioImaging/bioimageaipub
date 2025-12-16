@@ -1,5 +1,6 @@
 import subprocess
 from pathlib import Path
+
 import s3fs
 
 
@@ -9,7 +10,9 @@ def list_available_data_s3(
     file_type: str = ".zarr",
 ) -> list[str]:
     """
-    Docstring for list_available_data    
+    # TODO: Update docstrings.
+
+    Docstring for list_available_data
     :param endpoint_url: S3 endpoint URL
     :type endpoint_url: str
     :param data_dir: Description
