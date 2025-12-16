@@ -1,13 +1,13 @@
-import json
 import os
+import json
+import shutil
 import logging
 from random import random
-from bioio import BioImage
+from pathlib import Path, PurePath
+
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
-import shutil
-from pathlib import Path, PurePath
+from bioio import BioImage
 
 
 logging.basicConfig(level=logging.INFO)
@@ -16,13 +16,13 @@ logger = logging.getLogger(__name__)
 
 def prepare_for_png(arr: np.ndarray):
     """Prepare image array for saving as PNG using OpenCV."""
-    arr = np.asarray(arr).transpose((1, 0, 2)) # Transpose to Height x Width x Channel dimension order (for OpenCV)
-    arr = arr.astype(np.uint16, copy=False) # Ensure data is 16-bit depth
+    arr = np.asarray(arr).transpose((1, 0, 2))  # Transpose to Height x Width x Channel dimension order (for OpenCV)
+    arr = arr.astype(np.uint16, copy=False)  # Ensure data is 16-bit depth
 
     normalized_image = cv2.normalize(
-        arr, None, alpha=0, beta=65535, norm_type=cv2.NORM_MINMAX) # Normalize the image dynamic range for better visibility
+        arr, None, alpha=0, beta=65535, norm_type=cv2.NORM_MINMAX)  # Normalize image dynamic range for better visibility  # noqa
 
-    cv2.cvtColor(normalized_image, cv2.COLOR_BGR2RGB, normalized_image) # Convert from RGB to BGR color space for OpenCV
+    cv2.cvtColor(normalized_image, cv2.COLOR_BGR2RGB, normalized_image)  # Convert from RGB to BGR color space for OpenCV  # noqa
 
     return normalized_image
 
@@ -50,7 +50,8 @@ def convert_zarr(root_data_path: Path, converted_data_path: Path, zarr_file_list
 
                     normalized_image = prepare_for_png(img_rgb)
 
-                    output_png_path = converted_data_path / zarr_rel_path.replace(".zarr", "") / well_path / (image_path + f".{output_format}")
+                    output_png_path = converted_data_path / zarr_rel_path.replace(".zarr", "") / well_path \
+                        / (image_path + f".{output_format}")
                     logger.info("Saving " + str(output_png_path))
                     Path(output_png_path).parent.mkdir(parents=True, exist_ok=True)
                     cv2.imwrite(str(output_png_path), normalized_image)
@@ -58,8 +59,7 @@ def convert_zarr(root_data_path: Path, converted_data_path: Path, zarr_file_list
                     # copy Zarr metadata over
 
             shutil.copy(
-                os.path.join(zarr_path, ".zattrs"), 
-                os.path.join(output_png_path.parent.parent.parent, ".zattrs")
+                os.path.join(zarr_path, ".zattrs"), os.path.join(output_png_path.parent.parent.parent, ".zattrs")
             )
 
 
@@ -104,7 +104,7 @@ def zarr_name_to_plate_name(converted_data_path: str) -> dict:
             zattrs = json.load(f)
             print(f"Hashtag {zarr_name} - IDR Plate {zattrs['plate']['name']}")
             zarr_hash_plate_mapping[zarr_name] = zattrs['plate']['name']
-    
+
     return zarr_hash_plate_mapping
 
 
@@ -125,10 +125,11 @@ def test_train_split(converted_data_path: str, train_split_ratio: float = 0.8, z
             for field_idx in range(field_count):
                 if os.path.exists(f"{hash_filepath}/{zarr_name}/{well_path}/{field_idx}.png"):
                     well_path_clean = well_path.replace("/", "")
+
+                    # TODO: Need to double check the logic below?
                     if random() < train_split_ratio:
                         os.rename(f"{hash_filepath}/{zarr_name}/{well_path}/{field_idx}.png",
                     f"{converted_data_path}/train/{zarr_hash_plate_mapping[zarr_name]}_{well_path_clean}_{field_idx}.png")
                     else:
                         os.rename(f"{hash_filepath}/{zarr_name}/{well_path}/{field_idx}.png",
                     f"{converted_data_path}/test/{zarr_hash_plate_mapping[zarr_name]}_{well_path_clean}_{field_idx}.png")
-
